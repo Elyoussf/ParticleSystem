@@ -1,4 +1,4 @@
-use rand::{thread_rng, Rng};
+use rand::{ Rng};
 
 struct Position{
     x : i32,
