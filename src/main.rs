@@ -1,5 +1,5 @@
 mod modules;
 
 fn main() {
-    modules::Game_manager::Game_manager();
+    modules::Game_manager::game_manager();
 }
