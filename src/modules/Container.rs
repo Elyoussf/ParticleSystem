@@ -1,7 +1,6 @@
 use super::Particle::Particle;
 
-use std::thread;
-use std::time::Duration;
+
 
 // struct Dimension {
 //     height: i32,
@@ -9,7 +8,7 @@ use std::time::Duration;
 // }
 
 pub struct Container{
-    matrix : Vec<Vec<String>>
+    pub matrix : Vec<Vec<String>>
 }
 
 
@@ -33,7 +32,7 @@ impl Container{
             matrix
              }
     }
-
+    
     pub fn render(&self){
         
        
