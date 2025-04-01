@@ -7,9 +7,7 @@ This is my first particle system built in Rust, inspired by Primeagen's stream.
 ![Demo](./demo.gif)
 
 ## Features
-- Particle movement simulation
-- Customizable parameters
-- Optimized rendering
+- Simple container and particles flow randomly inside
 
 ## Installation
 ```sh
