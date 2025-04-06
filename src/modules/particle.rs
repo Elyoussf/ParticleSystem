@@ -4,9 +4,9 @@ use rand::Rng;
 pub struct Particle {
     pub symbol: String,
     pub pos: Position,
-    height: i32,
-    width: i32,
-    velocity: i32,
+    pub height: i32,
+    pub width: i32,
+
     pub lifetime: i32,
 }
 
@@ -20,7 +20,7 @@ impl Particle {
                 x: rng.gen_range(1..=height - 2),
                 y: rng.gen_range(1..=width - 2),
             },
-            velocity: 0,
+
             lifetime: rng.gen_range(2..=100),
             height,
             width,

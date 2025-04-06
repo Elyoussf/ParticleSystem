@@ -6,11 +6,21 @@ pub struct Position {
     pub x: i32,
     pub y: i32,
 }
+#[derive(Copy, Clone)]
 pub enum Direction {
     Up,
     Down,
     Left,
     Right,
 }
-pub type ShareQueue = Arc<Mutex<VecDeque<(Position, Direction)>>>;
+pub struct Break_effect {
+    // pub position: Position,
+    pub goto: Direction,
+    pub current_index: usize, // This index will  come from the field instances in snake struct  that identifies the partcile in sanke body that should be applied to
+}
+pub struct Data {
+    pub direction: Direction,
+    pub position: Position,
+}
+pub type ShareVec = Arc<Mutex<Vec<Break_effect>>>;
 // This will store a queue of position where to turn in a conncurrent way so that many would
