@@ -1,7 +1,7 @@
 use super::{
     container::Container,
     particle::Particle,
-    types::{self, Direction, Position, ShareVec},
+    types::{self, Break_effect, Direction, Position, ShareVec},
 };
 use crate::utils::{
     self,
@@ -107,15 +107,6 @@ impl Snake {
         }
     }
 
-    pub fn move_accordingly(&mut self , new_dir :  Direction){
-        match new_dir{
-            Direction::Up{
-            self.head.direction = new_dir;
-
-            }
-        }
-    }
-
     pub fn listen_keys_get_directions(&mut self, breaks: &mut ShareVec) {
         // Make sure thsis just a copy
         let input_thread = thread::spawn(|| {
@@ -139,10 +130,15 @@ impl Snake {
 
                     match (next1, next2) {
                         (91, 65) => {
-                            // new break point is created  if current direction of the head is not like the direction told here!!
-                            let requested_direction = Direction::Up;
-
-                            self.head.direction = requested_direction;
+                            let break_effect = Break_effect {
+                                goto: Direction::Up,
+                                current_index: 0, // head of the snake
+                            };
+                            breaks.lock().unwrap();
+                            breaks
+                                .into_inner()
+                                .expect("The mutex is been in hold for so long!!")
+                                .push(break_effect);
                         }
                         (91, 66) => println!("Down"),
                         (91, 67) => println!("Right"),
