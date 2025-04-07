@@ -1,6 +1,7 @@
 use super::types::Position;
 use rand::Rng;
 
+#[derive(Clone)]
 pub struct Particle {
     pub symbol: String,
     pub pos: Position,
@@ -17,8 +18,8 @@ impl Particle {
         Particle {
             symbol: "1".to_string(),
             pos: Position {
-                x: rng.gen_range(1..=height - 2),
-                y: rng.gen_range(1..=width - 2),
+                x: rng.gen_range(1..=height - 2) as usize,
+                y: rng.gen_range(1..=width - 2) as usize,
             },
 
             lifetime: rng.gen_range(2..=100),
@@ -43,13 +44,13 @@ impl Particle {
                 y: current_j,
             });
         }
-        if current_i < self.height - 1 {
+        if current_i < (self.height - 1) as usize {
             neighbors.push(Position {
                 x: current_i + 1,
                 y: current_j,
             });
         }
-        if current_j < self.width - 1 {
+        if current_j < (self.width - 1) as usize {
             neighbors.push(Position {
                 x: current_i,
                 y: current_j + 1,
@@ -69,19 +70,19 @@ impl Particle {
                 y: current_j - 1,
             });
         }
-        if current_i > 1 && current_j < self.width - 1 {
+        if current_i > 1 && current_j < (self.width - 1) as usize {
             neighbors.push(Position {
                 x: current_i - 1,
                 y: current_j + 1,
             });
         }
-        if current_i < self.height - 1 && current_j > 1 {
+        if current_i < (self.height - 1) as usize && current_j > 1 {
             neighbors.push(Position {
                 x: current_i + 1,
                 y: current_j - 1,
             });
         }
-        if current_i < self.height - 1 && current_j < self.width - 1 {
+        if current_i < (self.height - 1) as usize && current_j < (self.width - 1) as usize {
             neighbors.push(Position {
                 x: current_i + 1,
                 y: current_j + 1,

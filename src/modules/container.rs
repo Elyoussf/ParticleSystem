@@ -1,3 +1,5 @@
+use std::io::{self, Read, Write};
+
 pub struct Container {
     pub matrix: Vec<Vec<String>>,
 }
@@ -30,5 +32,9 @@ impl Container {
         }
 
         // }
+    }
+    pub fn clear_screen(&mut self) {
+        print!("\x1B[2J\x1B[H");
+        std::io::stdout().flush().unwrap();
     }
 }

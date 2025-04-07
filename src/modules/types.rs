@@ -3,8 +3,8 @@ use std::sync::{Arc, Mutex};
 
 #[derive(Copy, Clone)]
 pub struct Position {
-    pub x: i32,
-    pub y: i32,
+    pub x: usize,
+    pub y: usize,
 }
 #[derive(Copy, Clone)]
 pub enum Direction {
@@ -18,6 +18,8 @@ pub struct Break_effect {
     pub goto: Direction,
     pub current_index: usize, // This index will  come from the field instances in snake struct  that identifies the partcile in sanke body that should be applied to
 }
+
+#[derive(Copy, Clone)]
 pub struct Data {
     pub direction: Direction,
     pub position: Position,

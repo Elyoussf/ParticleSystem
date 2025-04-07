@@ -1,17 +1,15 @@
 use std::process::Command;
 
 pub fn enable_raw_mode() {
-    Command::new("styy")
-        .arg("-echo")
-        .arg("raw")
+    Command::new("stty")
+        .args(["-icanon", "-echo", "-isig"])
         .status()
-        .expect("Failed to enter raw mode");
+        .expect("Failed to enable partial raw mode");
 }
 
 pub fn disable_raw_mode() {
     Command::new("stty")
-        .arg("echo")
-        .arg("-raw")
+        .args(["icanon", "echo", "isig"])
         .status()
-        .expect("Failed to exit raw mode");
+        .expect("Failed to restore terminal");
 }

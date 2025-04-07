@@ -1,5 +1,5 @@
 use super::{
-    container::Container,
+    container::{self, Container},
     particle::Particle,
     types::{self, Break_effect, Direction, Position, ShareVec},
 };
@@ -7,13 +7,16 @@ use crate::utils::{
     self,
     terminal::{disable_raw_mode, enable_raw_mode},
 };
-use std::process::Command;
 use std::{
     clone,
     io::{self, Read, Write},
+    sync::{Arc, Mutex},
+    thread::JoinHandle,
 };
 use std::{collections::HashMap, thread};
+use std::{process::Command, thread::Thread, time::Duration};
 
+#[derive(Clone)]
 pub struct Snake {
     pub head: types::Data,
     pub tail: types::Data,
@@ -62,56 +65,60 @@ impl Snake {
         snk
     }
 
-    pub fn break_exist(&mut self, breaks: &mut ShareVec) {
-        // The caller should make a copy of Arc Then give it to this function
-        let mut _breaks = breaks.lock().unwrap(); // To avoid mutex poisning
-        _breaks.iter_mut().for_each(|brk| {
+    pub fn update_container(&self, grid: &mut Container) {
+        let rows = grid.matrix.len();
+        let cols = grid.matrix[0].len();
+
+        for i in 1..rows - 1 {
+            for j in 1..cols - 1 {
+                grid.matrix[i][j] = " ".to_string();
+            }
+        }
+        self.instances.iter().for_each(|e| {
+            grid.matrix[e.pos.x as usize][e.pos.y as usize] = "=".to_string();
+        });
+    }
+
+    // Modified to not return a JoinHandle, directly processes the breaks
+    pub fn break_exist(&mut self, breaks: &mut Vec<Break_effect>) {
+        breaks.iter_mut().for_each(|brk| {
             let index = brk.current_index;
 
             if let Some(ins) = self.instances.get_mut(index) {
                 match brk.goto {
                     Direction::Up => {
                         if ins.pos.x > 1 {
-                            ins.pos.x -= 1
+                            ins.pos.x -= 1;
                         }
                     }
                     Direction::Down => {
-                        if ins.pos.y < ins.height {
-                            // ====> width and height are allowed to include   (real -1)
-                            ins.pos.x += 1
+                        if ins.pos.x < ins.height as usize {
+                            // ====> width and height are allowed to include (real -1)
+                            ins.pos.x += 1;
                         }
                     }
                     Direction::Right => {
-                        if ins.pos.y < ins.width {
-                            ins.pos.y += 1
+                        if ins.pos.y < ins.width as usize {
+                            ins.pos.y += 1;
                         }
                     }
                     Direction::Left => {
-                        if ins.pos.x > 1 {
-                            ins.pos.x -= 1
+                        if ins.pos.y > 1 {
+                            ins.pos.y -= 1;
                         }
                     }
                 }
 
-                brk.current_index += 1
+                brk.current_index += 1;
             } else {
                 println!("The index of particle that break expects is not quite correct!!!");
             }
         });
-        _breaks.retain(|e| e.current_index < self.length - 1); // A mutable borrow occurs here
     }
 
-    pub fn bait_1v1_check(self: &mut Snake, bait: Position) {
-        if self.head.x == bait.x && self.head.y == bait.y {
-            self.length += 1;
-        }
-    }
-
-    pub fn listen_keys_get_directions(&mut self, breaks: &mut ShareVec) {
-        // Make sure thsis just a copy
-        let input_thread = thread::spawn(|| {
-            enable_raw_mode();
-
+    // Modified to take a reference to Snake and return a JoinHandle
+    pub fn listen_keys_get_directions(self, breaks: ShareVec) -> JoinHandle<()> {
+        thread::spawn(move || {
             let stdin = io::stdin();
             let mut stdout = io::stdout();
             stdout.flush().unwrap();
@@ -134,22 +141,36 @@ impl Snake {
                                 goto: Direction::Up,
                                 current_index: 0, // head of the snake
                             };
-                            breaks.lock().unwrap();
-                            breaks
-                                .into_inner()
-                                .expect("The mutex is been in hold for so long!!")
-                                .push(break_effect);
+
+                            breaks.lock().unwrap().push(break_effect);
                         }
-                        (91, 66) => println!("Down"),
-                        (91, 67) => println!("Right"),
-                        (91, 68) => println!("Left"),
+                        (91, 66) => {
+                            let break_effect = Break_effect {
+                                goto: Direction::Down,
+                                current_index: 0, // head of the snake
+                            };
+                            breaks.lock().unwrap().push(break_effect);
+                        }
+                        (91, 67) => {
+                            let break_effect = Break_effect {
+                                goto: Direction::Right,
+                                current_index: 0, // head of the snake
+                            };
+                            breaks.lock().unwrap().push(break_effect);
+                        }
+                        (91, 68) => {
+                            let break_effect = Break_effect {
+                                goto: Direction::Left,
+                                current_index: 0, // head of the snake
+                            };
+                            breaks.lock().unwrap().push(break_effect);
+                        }
                         _ => println!("Unknown escape: {} {} {}", b, next1, next2),
                     }
                 } else {
                     println!("Pressed: {}", b as char);
                 }
             }
-            disable_raw_mode();
-        });
+        })
     }
 }
