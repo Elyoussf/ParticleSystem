@@ -83,28 +83,70 @@ impl Snake {
     pub fn break_exist(&mut self, breaks: &mut Vec<Break_effect>) {
         breaks.iter_mut().for_each(|brk| {
             let index = brk.current_index;
-
-            if let Some(ins) = self.instances.get_mut(index) {
+            let (left, right) = self.instances.split_at_mut(index);
+            if let Some(ins) = right.get_mut(0) {
                 match brk.goto {
                     Direction::Up => {
-                        if ins.pos.x > 1 {
-                            ins.pos.x -= 1;
+                        if index != 0 {
+                            let l = left.len();
+                            let front = left
+                                .get(l - 1)
+                                .expect("Hamza This error is coming fron the unsafe split_at_mut");
+                            if front.pos.x < (front.height - 1) as usize {
+                                ins.pos.x = front.pos.x + 1;
+                            }
+                        } else {
+                            if ins.pos.x > 1 {
+                                ins.pos.x -= 1;
+                            }
+                            // if this break wants the sanake to get out of the bounds we need to get rid of it !!
                         }
                     }
                     Direction::Down => {
-                        if ins.pos.x < ins.height as usize {
-                            // ====> width and height are allowed to include (real -1)
-                            ins.pos.x += 1;
+                        if index != 0 {
+                            let l = left.len();
+                            let front = left
+                                .get(l - 1)
+                                .expect("Hamza This error is coming fron the unsafe split_at_mut");
+                            if front.pos.x > 2 {
+                                ins.pos.x = front.pos.x - 1;
+                            }
+                        } else {
+                            if ins.pos.x < ins.height as usize {
+                                // ====> width and height are allowed to include (real -1)
+                                ins.pos.x += 1;
+                            }
                         }
                     }
                     Direction::Right => {
-                        if ins.pos.y < ins.width as usize {
-                            ins.pos.y += 1;
+                        if index != 0 {
+                            let l = left.len();
+                            let front = left
+                                .get(l - 1)
+                                .expect("Hamza This error is coming fron the unsafe split_at_mut");
+                            if front.pos.y > 2 {
+                                ins.pos.x = front.pos.y - 1;
+                            }
+                        } else {
+                            if ins.pos.y < ins.width as usize {
+                                ins.pos.y += 1;
+                            }
                         }
                     }
                     Direction::Left => {
-                        if ins.pos.y > 1 {
-                            ins.pos.y -= 1;
+                        if index != 0 {
+                            let l = left.len();
+                            let front = left
+                                .get(l - 1)
+                                .expect("Hamza This error is coming fron the unsafe split_at_mut");
+
+                            if ins.pos.y < (front.width - 1) as usize {
+                                ins.pos.x = front.pos.y + 1;
+                            }
+                        } else {
+                            if ins.pos.y > 1 {
+                                ins.pos.y -= 1;
+                            }
                         }
                     }
                 }

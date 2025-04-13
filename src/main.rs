@@ -37,7 +37,7 @@ fn main() {
     // Clone the snake for input thread
     let snake_for_input = snake.clone();
     let breaks1 = breaks.clone();
-    let th1 = thread::spawn(move || {
+    thread::spawn(move || {
         // Get the snake from the mutex to pass to listen_keys
         let snake_instance = snake_for_input.lock().unwrap().clone();
         snake_instance.listen_keys_get_directions(breaks1.clone())
@@ -57,7 +57,6 @@ fn main() {
                 if !breaks_guard.is_empty() {
                     snake_guard.break_exist(&mut *breaks_guard);
                 }
-
                 // Clean up breaks that have been processed
                 breaks_guard.retain(|e| e.current_index <= snake_guard.length - 1);
             }
